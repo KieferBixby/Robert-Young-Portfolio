@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Yield Calculator — Portfolio Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--surface2:#f0f2f6;--surface3:#e8ebf0;
+  --border:#dde1e9;--border-hi:#c4cad6;
+  --ink:#1a1d23;--ink-2:#4a5568;--ink-3:#8a95a8;
+  --green:#1a7a44;--green-bg:#e8f5ee;--green-bdr:#b8ddc8;
+  --amber:#8a5a00;--amber-bg:#fff8e8;--amber-bdr:#f0d080;
+  --red:#8a1a1a;--red-bg:#fdf0f0;--red-bdr:#e8b8b8;
+  --blue:#1a4a8a;--blue-bg:#eef3fc;--blue-bdr:#b8cef0;
+  --accent:#2c5f9e;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;font-size:15px}
+
+.demo-banner{background:var(--accent);color:#fff;text-align:center;padding:9px 16px;font-size:12px}
+.demo-banner a{color:#cfe0ff;text-decoration:underline}
+
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.hdr-title{font-size:17px;font-weight:600}
+.hdr-title span{color:var(--accent)}
+.hdr-badge{font-family:var(--mono);font-size:11px;color:var(--ink-3);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+
+.page{max-width:1080px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
+@media(max-width:800px){.page{grid-template-columns:1fr}}
+
+/* ── INPUTS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:6px}
+.field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:4px;font-size:14px;font-family:var(--mono);background:var(--surface);color:var(--ink);transition:border-color .15s}
+.field input:focus{outline:none;border-color:var(--accent)}
+.field .hint{font-size:11px;color:var(--ink-3);margin-top:4px;display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.toggle-lbl{font-size:13px;color:var(--ink-3);font-weight:500;transition:color .15s}
+.toggle-lbl.on{color:var(--accent)}
+.switch{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--border-hi);border-radius:22px;transition:.2s}
+.slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input:checked+.slider{background:var(--accent)}
+input:checked+.slider:before{transform:translateX(20px)}
+
+.mode-tag{font-size:11px;font-weight:600;padding:6px 12px;border-radius:3px;margin-bottom:14px;font-family:var(--mono);letter-spacing:.04em}
+.mode-tag.default{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bdr)}
+.mode-tag.tuned{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bdr)}
+
+.adv-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.adv-arrow{font-size:12px;color:var(--ink-3);transition:transform .2s}
+.adv-body{display:none;margin-top:16px}
+.adv-body.open{display:block}
+
+/* ── OUTPUTS ── */
+.out-section{margin-bottom:24px}
+.out-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.scenario{border:1px solid var(--border);border-radius:6px;padding:20px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.scenario.down{border-top:3px solid var(--amber)}
+.scenario.up{border-top:3px solid var(--green)}
+.sc-header{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
+.sc-header.down{color:var(--amber)}
+.sc-header.up{color:var(--green)}
+.sc-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border)}
+.sc-row:last-child{border-bottom:none}
+.sc-key{font-size:12px;color:var(--ink-3)}
+.sc-val{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
+.sc-val.good{color:var(--green)}
+.sc-val.warn{color:var(--amber)}
+.sc-val.bad{color:var(--red)}
+.sc-note{font-size:11px;color:var(--ink-3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);line-height:1.5}
+
+.summary-card{background:var(--blue-bg);border:1px solid var(--blue-bdr);border-radius:6px;padding:20px;margin-bottom:20px}
+.summary-card .sc-row{border-bottom-color:rgba(26,74,138,.15)}
+.summary-card .sc-key{color:var(--blue)}
+.summary-card .sc-val{color:var(--blue)}
+
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.chart-wrap{position:relative;height:200px}
+
+.notice{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 16px;font-size:12px;color:var(--ink-3);margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  ★ PORTFOLIO DEMO — Generic inputs, no proprietary data &nbsp;|&nbsp;
+  <a href="https://kieferbixby.github.io/Robert-Young-Portfolio/" target="_blank">← Back to Portfolio</a>
+</div>
+
+<header class="hdr">
+  <div class="hdr-title">Production <span>Run</span> Planner</div>
+  <div class="hdr-badge">Demo · Startup Scrap Modeling</div>
+</header>
+
+<div class="page">
+
+  <!-- ── LEFT: INPUTS ── -->
+  <div>
+    <div class="card">
+      <div class="card-title">Order</div>
+      <div class="field">
+        <label>Units needed</label>
+        <input type="number" id="units" value="200000" min="1" step="1000" oninput="calc()">
+        <span class="hint">Target good-unit count to ship</span>
+      </div>
+      <div class="field">
+        <label>Ship tolerance (%)</label>
+        <input type="number" id="tol" value="10" min="0" max="50" step="1" oninput="calc()">
+        <span class="hint">Allowable over/under (default ±10%)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Lot Configuration</div>
+      <div class="row">
+        <div class="field">
+          <label>Lots per run</label>
+          <input type="number" id="lotsPerRun" value="4" min="1" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Units per lot</label>
+          <input type="number" id="unitsPerSeg" value="7250" min="1" oninput="calc()">
+        </div>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label>Lots lost to startup</label>
+        <input type="number" id="startupLots" value="2" min="0" oninput="calc()">
+        <span class="hint">Fixed lots consumed at startup (e.g. line purge, startup flush)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">key input / key input</div>
+      <div class="toggle-row">
+        <span class="toggle-lbl on" id="lbl-default">Default Profile</span>
+        <label class="switch"><input type="checkbox" id="profileToggle" onchange="toggleProfile()"><span class="slider"></span></label>
+        <span class="toggle-lbl" id="lbl-tuned">Tuned Profile</span>
+      </div>
+      <div id="panelDefault">
+        <div class="mode-tag default">Default Profile — uses standard lot ratios</div>
+        <div class="row">
+          <div class="field">
+            <label>Units per production run</label>
+            <input type="number" id="runSize" value="29000" min="1" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Raw material per lot (kg)</label>
+            <input type="number" id="rmKg" value="1.50" min="0.001" step="0.001" oninput="calc()">
+          </div>
+        </div>
+      </div>
+      <div id="panelTuned" style="display:none">
+        <div class="mode-tag tuned">Tuned Profile — calculates from concentration %</div>
+        <div class="row">
+          <div class="field">
+            <label>Units per production run</label>
+            <input type="number" id="runSizeP" value="29000" min="1" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Material concentration (%)</label>
+            <input type="number" id="concentration" value="85" min="1" max="100" step="0.1" oninput="calc()">
+          </div>
+        </div>
+        <div class="row" style="margin-top:0">
+          <div class="field">
+            <label>mg active per unit</label>
+            <input type="number" id="mgPerUnit" value="25" min="0.1" step="0.1" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Units per production run (pot)</label>
+            <input type="number" id="runSizePot2" value="29000" min="1" oninput="calc()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="adv-hdr" onclick="toggleAdv()">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)">Advanced Scrap Settings</span>
+        <span class="adv-arrow" id="advArrow">▼</span>
+      </div>
+      <div class="adv-body" id="advBody">
+        <div style="margin-top:4px"></div>
+        <div class="field">
+          <label>Startup scrap rate — Run 1 (%)</label>
+          <input type="number" id="startupScrap" value="50" min="0" max="100" step="1" oninput="calc()">
+          <span class="hint">Scrap rate on the first production run (startup / purge losses)</span>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Floor scrap rate (%)</label>
+            <input type="number" id="floorScrap" value="5" min="0" max="50" step="0.5" oninput="calc()">
+            <span class="hint">Steady-state minimum</span>
+          </div>
+          <div class="field">
+            <label>Batches to reach floor</label>
+            <input type="number" id="decayBatches" value="4" min="1" max="20" step="1" oninput="calc()">
+            <span class="hint">How quickly scrap decays</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: OUTPUTS ── -->
+  <div id="output">
+    <div style="text-align:center;padding:60px 20px;color:var(--ink-3)">
+      <div style="font-size:40px;opacity:.25;margin-bottom:12px">⚙️</div>
+      <div>Results will appear here as you enter values</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function v(id){return parseFloat(document.getElementById(id).value)||0}
+function toggleProfile(){
+  const on=document.getElementById('profileToggle').checked;
+  document.getElementById('panelDefault').style.display=on?'none':'block';
+  document.getElementById('panelTuned').style.display=on?'block':'none';
+  document.getElementById('lbl-default').classList.toggle('on',!on);
+  document.getElementById('lbl-tuned').classList.toggle('on',on);
+  calc();
+}
+function toggleAdv(){
+  const b=document.getElementById('advBody');
+  const a=document.getElementById('advArrow');
+  b.classList.toggle('open');
+  a.style.transform=b.classList.contains('open')?'rotate(180deg)':'';
+}
+
+let scrapChart=null;
+
+function calc(){
+  const unitsNeeded=v('units');
+  const tol=v('tol')/100;
+  const lotsPerRun=Math.max(1,Math.round(v('lotsPerRun')));
+  const unitsPerSeg=v('unitsPerSeg');
+  const startupLots=Math.round(v('startupLots'));
+  const startupScrap=v('startupScrap')/100;
+  const floorScrap=v('floorScrap')/100;
+  const decayBatches=Math.max(1,Math.round(v('decayBatches')));
+
+  const potMode=document.getElementById('profileToggle').checked;
+  const runSize=potMode?v('runSizeP'):v('runSize');
+  const rmPerRun=v('rmKg');
+
+  if(!unitsNeeded||!lotsPerRun||!unitsPerSeg||!runSize) return;
+
+  // ── Scrap curve: scrap rate for batch b (1-indexed)
+  function scrapRate(b){
+    if(b===1) return startupScrap;
+    const t=Math.min((b-1)/(decayBatches-1||1),1);
+    return startupScrap+(floorScrap-startupScrap)*t;
+  }
+
+  // ── Simulate production for N production runes
+  function simulate(numRuns){
+    let goodUnits=0;
+    let totalLots=0;
+    let totalDist=0;
+    const runData=[];
+    for(let mb=1;mb<=numRuns;mb++){
+      const productiveLots=mb===1?lotsPerRun-startupLots:lotsPerRun;
+      const sr=scrapRate(mb);
+      const goodThisMB=Math.round(productiveLots*unitsPerSeg*(1-sr));
+      const distThisMB=potMode
+        ?calcDistTuned(runSize)
+        :rmPerRun;
+      goodUnits+=goodThisMB;
+      totalLots+=lotsPerRun;
+      totalDist+=distThisMB;
+      runData.push({mb,goodThisMB,sr:Math.round(sr*100),productiveLots});
+    }
+    return{goodUnits,totalLots,totalDist,runData};
+  }
+
+  // ── Find minimum MBs to hit order
+  let runDown=0,runUp=0;
+  for(let n=1;n<=50;n++){
+    const r=simulate(n);
+    if(r.goodUnits>=unitsNeeded){runUp=n;runDown=n-1;break;}
+  }
+  if(!runUp){runUp=50;runDown=49;}
+
+  const rDown=simulate(Math.max(1,runDown));
+  const rUp=simulate(runUp);
+
+  const shortfall=unitsNeeded-rDown.goodUnits;
+  const overage=rUp.goodUnits-unitsNeeded;
+  const overagePct=Math.round(overage/unitsNeeded*100*10)/10;
+  const tolUnits=Math.round(unitsNeeded*tol);
+
+  const canShipDown=runDown>0&&shortfall<=tolUnits;
+  const distPerSeg=rmPerRun/lotsPerRun;
+
+  // ── Tuned profile helper
+  function calcDistTuned(mbSz){
+    const pot=v('concentration')/100;
+    const mg=v('mgPerUnit');
+    return(mbSz*mg/1000)/pot/1000;
+  }
+
+  // ── Render
+  const distLabel=potMode?'Raw material (tuned)':'Raw material';
+
+  document.getElementById('output').innerHTML=`
+    <div class="out-section">
+      <div class="out-label">Run Summary</div>
+      <div class="summary-card">
+        <div class="sc-row"><span class="sc-key">Order target</span><span class="sc-val">${unitsNeeded.toLocaleString()} units</span></div>
+        <div class="sc-row"><span class="sc-key">Min production runs to fill</span><span class="sc-val">${runUp} runs (${runUp*lotsPerRun} total lots)</span></div>
+        <div class="sc-row"><span class="sc-key">Productive lots (Run 1 startup loss)</span><span class="sc-val">${runUp*lotsPerRun-startupLots} of ${runUp*lotsPerRun}</span></div>
+        <div class="sc-row"><span class="sc-key">Effective scrap — Run 1 → floor</span><span class="sc-val">${Math.round(startupScrap*100)}% → ${Math.round(floorScrap*100)}%</span></div>
+      </div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-label">Scenario Comparison</div>
+      <div class="scenario-grid">
+        <div class="scenario down" style="${!canShipDown?'opacity:.5':''}">
+          <div class="sc-header down">▼ Round Down${runDown<1?' (N/A)':''}</div>
+          ${runDown<1?`<div class="sc-note">Not possible — order requires at least 1 production run.</div>`:`
+          <div class="sc-row"><span class="sc-key">Production runes</span><span class="sc-val">${runDown}</span></div>
+          <div class="sc-row"><span class="sc-key">Total lots</span><span class="sc-val">${runDown*lotsPerRun}</span></div>
+          <div class="sc-row"><span class="sc-key">Good units</span><span class="sc-val ${canShipDown?'good':'bad'}">${rDown.goodUnits.toLocaleString()}</span></div>
+          <div class="sc-row"><span class="sc-key">Short by</span><span class="sc-val ${canShipDown?'warn':'bad'}">${shortfall.toLocaleString()}</span></div>
+          <div class="sc-row"><span class="sc-key">${distLabel}</span><span class="sc-val">${rDown.totalDist.toFixed(3)} kg</span></div>
+          <div class="sc-note">${canShipDown?`✓ Within ${v('tol')}% tolerance — shippable short.`:`✗ ${Math.round(shortfall/unitsNeeded*100*10)/10}% short — outside tolerance.`}</div>`}
+        </div>
+
+        <div class="scenario up">
+          <div class="sc-header up">▲ Round Up</div>
+          <div class="sc-row"><span class="sc-key">Production runes</span><span class="sc-val">${runUp}</span></div>
+          <div class="sc-row"><span class="sc-key">Total lots</span><span class="sc-val">${runUp*lotsPerRun}</span></div>
+          <div class="sc-row"><span class="sc-key">Good units</span><span class="sc-val good">${rUp.goodUnits.toLocaleString()}</span></div>
+          <div class="sc-row"><span class="sc-key">Overage</span><span class="sc-val ${overagePct<=10?'good':'warn'}">+${overage.toLocaleString()} (+${overagePct}%)</span></div>
+          <div class="sc-row"><span class="sc-key">${distLabel}</span><span class="sc-val">${rUp.totalDist.toFixed(3)} kg</span></div>
+          <div class="sc-note">Overage lots: ${Math.ceil(overage/unitsPerSeg)} lot worth of excess production above order.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="out-section">
+      <div class="chart-card">
+        <div class="chart-title">Scrap Rate by Master Batch</div>
+        <div class="chart-wrap"><canvas id="scrapCurveChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-label">Master Batch Breakdown (Round Up)</div>
+      <div class="chart-card">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;border-bottom:1px solid var(--border)">Batch</th>
+              <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;border-bottom:1px solid var(--border)">Lots</th>
+              <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;border-bottom:1px solid var(--border)">Scrap Rate</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;border-bottom:1px solid var(--border)">Good Units</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rUp.runData.map((d,i)=>`
+            <tr style="${i%2===0?'background:var(--surface2)':''}">
+              <td style="padding:8px 12px;font-family:var(--mono);font-size:12px;border-bottom:1px solid var(--border);color:var(--ink)">Run ${d.mb}</td>
+              <td style="padding:8px 12px;font-family:var(--mono);font-size:12px;border-bottom:1px solid var(--border);color:var(--ink-2)">${d.productiveLots} of ${lotsPerRun}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid var(--border)"><span style="font-family:var(--mono);font-size:12px;font-weight:500;color:${d.sr>30?'var(--red)':d.sr>10?'var(--amber)':'var(--green)'}">${d.sr}%</span></td>
+              <td style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;border-bottom:1px solid var(--border);color:var(--ink)">${d.goodThisMB.toLocaleString()}</td>
+            </tr>`).join('')}
+            <tr style="background:var(--blue-bg)">
+              <td colspan="3" style="padding:9px 12px;font-size:12px;font-weight:600;color:var(--blue)">Total</td>
+              <td style="padding:9px 12px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--blue)">${rUp.goodUnits.toLocaleString()}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="notice">
+      This calculator models startup scrap curves for batch production. All default values are illustrative. In production use, parameters are calibrated to actual run data for each product and key input type.
+    </div>`;
+
+  // ── Scrap curve chart
+  if(scrapChart){try{scrapChart.destroy()}catch(e){}}
+  const curveLabels=Array.from({length:runUp},(_,i)=>`Run ${i+1}`);
+  const curveData=Array.from({length:runUp},(_,i)=>Math.round(scrapRate(i+1)*1000)/10);
+  scrapChart=new Chart(document.getElementById('scrapCurveChart'),{
+    type:'line',
+    data:{labels:curveLabels,datasets:[{
+      label:'Scrap %',data:curveData,
+      borderColor:'var(--accent)',borderWidth:2.5,
+      backgroundColor:'rgba(44,95,158,.08)',fill:true,tension:.3,
+      pointBackgroundColor:curveData.map(d=>d>30?'#8a1a1a':d>10?'#8a5a00':'#1a7a44'),
+      pointRadius:5
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,.06)'},ticks:{color:'#8a95a8',font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,.06)'},ticks:{color:'#8a95a8',font:{size:11},callback:v=>v+'%'},min:0,max:Math.min(100,Math.ceil(v('startupScrap')/10)*10+5)}
+      }
+    }
+  });
+}
+
+calc();
+</script>
+</body>
+</html>
