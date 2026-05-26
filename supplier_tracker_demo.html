@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supplier Performance Tracker — Portfolio Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--surface2:#f0f2f6;--surface3:#e8ebf0;
+  --border:#dde1e9;--border-hi:#c4cad6;
+  --ink:#1a1d23;--ink-2:#4a5568;--ink-3:#8a95a8;
+  --green:#1a7a44;--green-bg:#e8f5ee;--green-bdr:#b8ddc8;
+  --amber:#8a5a00;--amber-bg:#fff8e8;--amber-bdr:#f0d080;
+  --red:#8a1a1a;--red-bg:#fdf0f0;--red-bdr:#e8b8b8;
+  --blue:#1a4a8a;--blue-bg:#eef3fc;--blue-bdr:#b8cef0;
+  --accent:#2c5f9e;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;font-size:15px}
+
+.demo-banner{background:var(--accent);color:#fff;text-align:center;padding:9px 16px;font-size:12px;letter-spacing:.02em}
+.demo-banner a{color:#cfe0ff;text-decoration:underline}
+
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:33px;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.logo-text{font-size:17px;font-weight:600;color:var(--ink)}
+.logo-text span{color:var(--accent)}
+.hdr-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+
+.summary-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;gap:36px;overflow-x:auto}
+.sum-item{display:flex;flex-direction:column;gap:3px;white-space:nowrap}
+.sum-n{font-size:30px;font-weight:700;line-height:1;font-family:var(--mono)}
+.sum-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.c-green .sum-n{color:var(--green)}
+.c-amber .sum-n{color:var(--amber)}
+.c-red .sum-n{color:var(--red)}
+.c-blue .sum-n{color:var(--accent)}
+.sum-sep{width:1px;background:var(--border);align-self:stretch}
+
+.layout{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 126px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:8px 18px 6px}
+.sup-row{padding:10px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sup-row:hover{background:var(--surface2);border-left-color:var(--border-hi)}
+.sup-row.active{background:var(--blue-bg);border-left-color:var(--accent)}
+.sup-name{font-size:13px;font-weight:500;margin-bottom:2px;color:var(--ink)}
+.sup-cat{font-size:11px;color:var(--ink-3)}
+.sup-score-pill{font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.pill-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr)}
+.pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bdr)}
+.pill-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bdr)}
+
+.main{padding:28px;overflow-y:auto;background:var(--bg)}
+.main-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.main-title{font-size:24px;font-weight:700;color:var(--ink)}
+.main-sub{font-size:13px;color:var(--ink-3);margin-top:4px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid}
+.badge-green{background:var(--green-bg);color:var(--green);border-color:var(--green-bdr)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bdr)}
+.badge-red{background:var(--red-bg);color:var(--red);border-color:var(--red-bdr)}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);padding:20px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.kpi-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.kpi-val{font-size:38px;font-weight:700;line-height:1;margin-bottom:4px;font-family:var(--mono)}
+.kpi-trend{font-size:12px;color:var(--ink-3)}
+.kpi-trend .up{color:var(--green);font-weight:500}
+.kpi-trend .dn{color:var(--red);font-weight:500}
+.kpi-bar-bg{height:4px;background:var(--surface3);border-radius:2px;margin-top:12px}
+.kpi-bar-fill{height:4px;border-radius:2px}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--surface);border:1px solid var(--border);padding:20px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.chart-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:16px}
+.chart-wrap{position:relative;height:180px}
+
+.log-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.log-card-hdr{padding:14px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);background:var(--surface2)}
+.log-table{width:100%;border-collapse:collapse;font-size:13px}
+.log-table th{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.log-table td{padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.log-table tr:last-child td{border-bottom:none}
+.log-table tr:hover td{background:var(--surface2)}
+.mono{font-family:var(--mono);font-size:12px}
+.pass{color:var(--green);font-family:var(--mono);font-size:12px;font-weight:500}
+.fail{color:var(--red);font-family:var(--mono);font-size:12px;font-weight:500}
+.warn{color:var(--amber);font-family:var(--mono);font-size:12px;font-weight:500}
+
+.empty-state{text-align:center;padding:80px 20px;color:var(--ink-3)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-text{font-size:15px}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .chart-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  ★ PORTFOLIO DEMO — All names, companies, and data are fictional &nbsp;|&nbsp;
+  <a href="https://kieferbixby.github.io/Robert-Young-Portfolio/" target="_blank">← Back to Portfolio</a>
+</div>
+
+<header class="hdr">
+  <div class="logo-text">Supplier <span>Performance</span> Tracker</div>
+  <div class="hdr-meta">Demo · 6 Suppliers · 12 Months</div>
+</header>
+
+<div class="summary-bar" id="summaryBar"></div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-label">Suppliers</div>
+    <div id="supList"></div>
+  </div>
+  <div class="main" id="mainContent">
+    <div class="empty-state">
+      <div class="empty-icon">📦</div>
+      <div class="empty-text">Select a supplier from the list to view performance data</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPPLIERS=[
+  {id:1,name:'Apex Industrial Partners',category:'Raw Materials',contact:'Sarah Chen',phone:'(312) 555-0142',email:'s.chen@apexindustrial.com',ownership:'Company Owned',
+   entries:[
+    {month:'Jun 2024',otif:96,accept:99.1,docs:100,notes:'Excellent month. New ASN process working well.'},
+    {month:'Jul 2024',otif:94,accept:98.8,docs:100,notes:'Minor late delivery on one PO — carrier issue.'},
+    {month:'Aug 2024',otif:97,accept:99.4,docs:100,notes:''},
+    {month:'Sep 2024',otif:95,accept:99.0,docs:98,notes:'Missing CoA on 2 lots. Corrected same day.'},
+    {month:'Oct 2024',otif:98,accept:99.6,docs:100,notes:'Best month to date.'},
+    {month:'Nov 2024',otif:96,accept:99.2,docs:100,notes:''},
+    {month:'Dec 2024',otif:94,accept:98.9,docs:100,notes:'Holiday delays on two shipments.'},
+    {month:'Jan 2025',otif:97,accept:99.5,docs:100,notes:''},
+    {month:'Feb 2025',otif:98,accept:99.3,docs:100,notes:''},
+    {month:'Mar 2025',otif:96,accept:99.1,docs:98,notes:'Two docs late but submitted before production.'},
+    {month:'Apr 2025',otif:99,accept:99.7,docs:100,notes:'Outstanding. Contract renewal discussion initiated.'},
+    {month:'May 2025',otif:97,accept:99.4,docs:100,notes:'Consistent. No issues.'},
+   ]},
+  {id:2,name:'Meridian Supply Group',category:'Packaging Components',contact:'David Okafor',phone:'(404) 555-0217',email:'dokafor@meridiansupply.com',ownership:'Company Owned',
+   entries:[
+    {month:'Jun 2024',otif:88,accept:97.2,docs:95,notes:'Late on 3 of 12 POs. Capacity issue cited.'},
+    {month:'Jul 2024',otif:85,accept:96.8,docs:92,notes:'Documentation non-compliance — missing SDS on 4 lots.'},
+    {month:'Aug 2024',otif:90,accept:97.5,docs:97,notes:'Improvement noted. Corrective action submitted.'},
+    {month:'Sep 2024',otif:87,accept:97.0,docs:95,notes:''},
+    {month:'Oct 2024',otif:92,accept:97.8,docs:98,notes:'Steady improvement trend.'},
+    {month:'Nov 2024',otif:89,accept:97.1,docs:96,notes:''},
+    {month:'Dec 2024',otif:83,accept:96.5,docs:90,notes:'Significant holiday disruption. 5 POs late.'},
+    {month:'Jan 2025',otif:91,accept:97.6,docs:97,notes:'Recovery month.'},
+    {month:'Feb 2025',otif:93,accept:97.9,docs:98,notes:''},
+    {month:'Mar 2025',otif:90,accept:97.4,docs:96,notes:''},
+    {month:'Apr 2025',otif:94,accept:98.1,docs:99,notes:'Best OTIF in 12 months.'},
+    {month:'May 2025',otif:92,accept:97.8,docs:98,notes:'Trending in the right direction.'},
+   ]},
+  {id:3,name:'Coastal Raw Materials LLC',category:'Active Ingredients',contact:'Jennifer Walsh',phone:'(904) 555-0398',email:'jwalsh@coastalrawmat.com',ownership:'Customer Owned',
+   entries:[
+    {month:'Jun 2024',otif:72,accept:95.1,docs:82,notes:'Multiple compliance failures. Escalation issued.'},
+    {month:'Jul 2024',otif:68,accept:94.3,docs:78,notes:'CAPA requested. Rejection rate above threshold.'},
+    {month:'Aug 2024',otif:75,accept:95.8,docs:85,notes:'Marginal improvement. CAPA response received.'},
+    {month:'Sep 2024',otif:70,accept:94.9,docs:80,notes:'Backslide. Supplier meeting held.'},
+    {month:'Oct 2024',otif:78,accept:96.2,docs:88,notes:'CAPA actions appear to be taking effect.'},
+    {month:'Nov 2024',otif:74,accept:95.4,docs:84,notes:''},
+    {month:'Dec 2024',otif:65,accept:93.8,docs:75,notes:'Worst month. Alternate supplier qualification initiated.'},
+    {month:'Jan 2025',otif:79,accept:96.0,docs:87,notes:'Some recovery but still below thresholds.'},
+    {month:'Feb 2025',otif:76,accept:95.6,docs:85,notes:''},
+    {month:'Mar 2025',otif:81,accept:96.4,docs:90,notes:'First month above 80 OTIF in 9 months.'},
+    {month:'Apr 2025',otif:78,accept:95.9,docs:88,notes:'Inconsistent. Under review for contract termination.'},
+    {month:'May 2025',otif:80,accept:96.1,docs:89,notes:'On probation. 90-day improvement plan in effect.'},
+   ]},
+  {id:4,name:'Pinnacle Components Inc.',category:'Packaging Components',contact:'Marcus Reed',phone:'(813) 555-0074',email:'mreed@pinnaclecomp.com',ownership:'Company Owned',
+   entries:[
+    {month:'Jun 2024',otif:91,accept:98.2,docs:97,notes:''},
+    {month:'Jul 2024',otif:93,accept:98.5,docs:99,notes:''},
+    {month:'Aug 2024',otif:92,accept:98.4,docs:98,notes:'Minor labeling discrepancy — corrected.'},
+    {month:'Sep 2024',otif:94,accept:98.7,docs:100,notes:''},
+    {month:'Oct 2024',otif:90,accept:98.0,docs:97,notes:'Two POs delivered one day late.'},
+    {month:'Nov 2024',otif:93,accept:98.6,docs:99,notes:''},
+    {month:'Dec 2024',otif:89,accept:97.9,docs:96,notes:'Holiday slowdown. Acceptable.'},
+    {month:'Jan 2025',otif:94,accept:98.8,docs:100,notes:''},
+    {month:'Feb 2025',otif:95,accept:98.9,docs:100,notes:'Strong month.'},
+    {month:'Mar 2025',otif:93,accept:98.6,docs:99,notes:''},
+    {month:'Apr 2025',otif:96,accept:99.1,docs:100,notes:'Top performer this month.'},
+    {month:'May 2025',otif:94,accept:98.8,docs:100,notes:'Consistent. Strong relationship.'},
+   ]},
+  {id:5,name:'Keystone Raw Materials',category:'Active Ingredients',contact:'Patricia Nguyen',phone:'(615) 555-0551',email:'p.nguyen@keystoneraw.com',ownership:'Both',
+   entries:[
+    {month:'Jun 2024',otif:85,accept:97.8,docs:94,notes:''},
+    {month:'Jul 2024',otif:88,accept:98.1,docs:96,notes:''},
+    {month:'Aug 2024',otif:82,accept:97.4,docs:92,notes:'Capacity constraints cited. Monitoring.'},
+    {month:'Sep 2024',otif:86,accept:97.9,docs:95,notes:''},
+    {month:'Oct 2024',otif:90,accept:98.3,docs:97,notes:'Improvement after capacity expansion.'},
+    {month:'Nov 2024',otif:87,accept:98.0,docs:96,notes:''},
+    {month:'Dec 2024',otif:84,accept:97.6,docs:93,notes:''},
+    {month:'Jan 2025',otif:89,accept:98.2,docs:96,notes:''},
+    {month:'Feb 2025',otif:91,accept:98.5,docs:98,notes:''},
+    {month:'Mar 2025',otif:88,accept:98.0,docs:95,notes:''},
+    {month:'Apr 2025',otif:92,accept:98.6,docs:98,notes:''},
+    {month:'May 2025',otif:90,accept:98.3,docs:97,notes:'Solid mid-tier performer. Reliable.'},
+   ]},
+  {id:6,name:'Summit Logistics & Fulfillment',category:'Third-Party Logistics',contact:'Anthony Rossi',phone:'(732) 555-0289',email:'a.rossi@summitlogistics.com',ownership:'Company Owned',
+   entries:[
+    {month:'Jun 2024',otif:97,accept:99.8,docs:100,notes:'Excellent. New carrier partnership.'},
+    {month:'Jul 2024',otif:96,accept:99.7,docs:100,notes:''},
+    {month:'Aug 2024',otif:95,accept:99.5,docs:99,notes:''},
+    {month:'Sep 2024',otif:97,accept:99.8,docs:100,notes:''},
+    {month:'Oct 2024',otif:94,accept:99.4,docs:99,notes:'Minor system outage affected tracking.'},
+    {month:'Nov 2024',otif:96,accept:99.7,docs:100,notes:''},
+    {month:'Dec 2024',otif:92,accept:99.2,docs:98,notes:'Holiday surge. Managed well overall.'},
+    {month:'Jan 2025',otif:97,accept:99.8,docs:100,notes:''},
+    {month:'Feb 2025',otif:98,accept:99.9,docs:100,notes:'Near-perfect month.'},
+    {month:'Mar 2025',otif:96,accept:99.6,docs:100,notes:''},
+    {month:'Apr 2025',otif:97,accept:99.7,docs:100,notes:''},
+    {month:'May 2025',otif:96,accept:99.6,docs:100,notes:'Consistent top performer.'},
+   ]}
+];
+
+function scoreOTIF(v){return v>=95?100:v>=90?80:v>=85?60:v>=80?40:20}
+function scoreAccept(v){return v>=98?100:v>=96?80:v>=94?60:v>=92?40:20}
+function scoreDocs(v){return v>=98?100:v>=95?80:v>=90?60:v>=85?40:20}
+function overallScore(e){return Math.round(scoreOTIF(e.otif)*.4+scoreAccept(e.accept)*.35+scoreDocs(e.docs)*.25)}
+function avgScore(entries){return entries.length?Math.round(entries.reduce((s,e)=>s+overallScore(e),0)/entries.length):0}
+function pillClass(s){return s>=80?'pill-green':s>=60?'pill-amber':'pill-red'}
+function badgeClass(s){return s>=80?'badge-green':s>=60?'badge-amber':'badge-red'}
+function badgeLabel(s){return s>=80?'Performing Well':s>=60?'Needs Attention':'Critical'}
+function kpiColor(v,t1,t2){return v>=t1?'var(--green)':v>=t2?'var(--amber)':'var(--red)'}
+
+function renderSummary(){
+  const scores=SUPPLIERS.map(s=>avgScore(s.entries));
+  const excellent=scores.filter(s=>s>=80).length;
+  const warning=scores.filter(s=>s>=60&&s<80).length;
+  const critical=scores.filter(s=>s<60).length;
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  document.getElementById('summaryBar').innerHTML=`
+    <div class="sum-item c-blue"><div class="sum-n">${SUPPLIERS.length}</div><div class="sum-lbl">Active Suppliers</div></div>
+    <div class="sum-sep"></div>
+    <div class="sum-item c-green"><div class="sum-n">${excellent}</div><div class="sum-lbl">Performing Well</div></div>
+    <div class="sum-item c-amber"><div class="sum-n">${warning}</div><div class="sum-lbl">Needs Attention</div></div>
+    <div class="sum-item c-red"><div class="sum-n">${critical}</div><div class="sum-lbl">Critical</div></div>
+    <div class="sum-sep"></div>
+    <div class="sum-item c-blue"><div class="sum-n">${avg}</div><div class="sum-lbl">Portfolio Avg Score</div></div>`;
+}
+
+function renderSidebar(activeId=null){
+  const sorted=[...SUPPLIERS].sort((a,b)=>avgScore(b.entries)-avgScore(a.entries));
+  document.getElementById('supList').innerHTML=sorted.map(s=>{
+    const sc=avgScore(s.entries);
+    return `<div class="sup-row${s.id===activeId?' active':''}" onclick="showSupplier(${s.id})">
+      <div style="min-width:0">
+        <div class="sup-name">${s.name}</div>
+        <div class="sup-cat">${s.category}</div>
+      </div>
+      <div class="sup-score-pill ${pillClass(sc)}">${sc}</div>
+    </div>`;
+  }).join('');
+}
+
+let charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={}}
+
+function showSupplier(id){
+  destroyCharts();
+  const s=SUPPLIERS.find(x=>x.id===id);
+  if(!s)return;
+  renderSidebar(id);
+  const latest=s.entries[s.entries.length-1];
+  const prev=s.entries[s.entries.length-2];
+  const scAvg=avgScore(s.entries);
+
+  function trend(curr,prv,key){
+    const diff=(curr[key]-prv[key]);
+    if(Math.abs(diff)<0.05)return'<span style="color:var(--ink-3)">→ flat</span>';
+    const up=diff>0;
+    return`<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${Math.abs(diff).toFixed(1)}</span> vs prior month`;
+  }
+
+  const labels=s.entries.map(e=>e.month.replace(' 2024',"'24").replace(' 2025',"'25"));
+
+  document.getElementById('mainContent').innerHTML=`
+    <div class="main-hdr">
+      <div>
+        <div class="main-title">${s.name}</div>
+        <div class="main-sub">${s.category} &nbsp;·&nbsp; ${s.ownership} &nbsp;·&nbsp; Contact: ${s.contact}</div>
+      </div>
+      <span class="badge ${badgeClass(scAvg)}">${badgeLabel(scAvg)} &nbsp; ${scAvg}/100</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">OTIF — On-Time In Full</div>
+        <div class="kpi-val" style="color:${kpiColor(latest.otif,90,85)}">${latest.otif}%</div>
+        <div class="kpi-trend">${trend(latest,prev,'otif')}</div>
+        <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${latest.otif}%;background:${kpiColor(latest.otif,90,85)}"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">QA Acceptance Rate</div>
+        <div class="kpi-val" style="color:${kpiColor(latest.accept,98,96)}">${latest.accept}%</div>
+        <div class="kpi-trend">${trend(latest,prev,'accept')}</div>
+        <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${latest.accept}%;background:${kpiColor(latest.accept,98,96)}"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Documentation Compliance</div>
+        <div class="kpi-val" style="color:${kpiColor(latest.docs,98,95)}">${latest.docs}%</div>
+        <div class="kpi-trend">${trend(latest,prev,'docs')}</div>
+        <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${latest.docs}%;background:${kpiColor(latest.docs,98,95)}"></div></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">OTIF Trend — 12 Months</div>
+        <div class="chart-wrap"><canvas id="chartOTIF"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Overall Score — 12 Months</div>
+        <div class="chart-wrap"><canvas id="chartScore"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title">All KPIs — Side by Side</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="chartAll"></canvas></div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-card-hdr">Entry Log — Most Recent First</div>
+      <table class="log-table">
+        <thead><tr>
+          <th>Month</th><th>OTIF</th><th>Acceptance</th><th>Docs</th><th>Score</th><th>Notes</th>
+        </tr></thead>
+        <tbody>
+          ${[...s.entries].reverse().map(e=>{
+            const sc2=overallScore(e);
+            return`<tr>
+              <td class="mono">${e.month}</td>
+              <td class="${e.otif>=90?'pass':e.otif>=85?'warn':'fail'}">${e.otif}%</td>
+              <td class="${e.accept>=98?'pass':e.accept>=96?'warn':'fail'}">${e.accept}%</td>
+              <td class="${e.docs>=98?'pass':e.docs>=95?'warn':'fail'}">${e.docs}%</td>
+              <td><span class="badge ${badgeClass(sc2)}" style="font-size:11px;padding:3px 10px">${sc2}</span></td>
+              <td style="font-size:12px;color:var(--ink-3)">${e.notes||'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  const gridColor='rgba(0,0,0,.06)';
+  const tickColor='#8a95a8';
+  const baseOpts={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10}}},
+      y:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10}}}
+    }};
+
+  charts.otif=new Chart(document.getElementById('chartOTIF'),{type:'line',
+    data:{labels,datasets:[{
+      data:s.entries.map(e=>e.otif),
+      borderColor:'#2c5f9e',borderWidth:2,
+      backgroundColor:'rgba(44,95,158,.08)',fill:true,tension:.3,
+      pointBackgroundColor:s.entries.map(e=>e.otif>=90?'#1a7a44':e.otif>=85?'#8a5a00':'#8a1a1a'),
+      pointRadius:4
+    }]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:60,max:100}}}});
+
+  charts.score=new Chart(document.getElementById('chartScore'),{type:'bar',
+    data:{labels,datasets:[{
+      data:s.entries.map(e=>overallScore(e)),
+      backgroundColor:s.entries.map(e=>overallScore(e)>=80?'rgba(26,122,68,.5)':overallScore(e)>=60?'rgba(138,90,0,.5)':'rgba(138,26,26,.5)'),
+      borderRadius:3
+    }]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:0,max:100}}}});
+
+  charts.all=new Chart(document.getElementById('chartAll'),{type:'line',
+    data:{labels,datasets:[
+      {label:'OTIF',data:s.entries.map(e=>e.otif),borderColor:'#2c5f9e',borderWidth:2,tension:.3,pointRadius:2,fill:false},
+      {label:'Acceptance',data:s.entries.map(e=>e.accept),borderColor:'#1a7a44',borderWidth:2,tension:.3,pointRadius:2,fill:false},
+      {label:'Documentation',data:s.entries.map(e=>e.docs),borderColor:'#8a5a00',borderWidth:2,tension:.3,pointRadius:2,fill:false}
+    ]},
+    options:{...baseOpts,
+      plugins:{legend:{display:true,labels:{color:'#4a5568',font:{size:11},boxWidth:12}}},
+      scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:60,max:100}}}});
+}
+
+renderSummary();
+renderSidebar();
+</script>
+</body>
+</html>
