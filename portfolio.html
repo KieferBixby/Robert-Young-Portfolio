@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robert Young — Operations & Supply Chain</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f5f2eb;
+  --bg-card:  #faf8f3;
+  --ink:      #1a1814;
+  --ink-2:    #4a4640;
+  --ink-3:    #8a8680;
+  --rule:     #ddd9d0;
+  --accent:   #b84c1a;
+  --accent-2: #e8d5c8;
+  --green:    #2d6a4f;
+  --green-bg: #e8f4ee;
+  --mono:     'DM Mono', monospace;
+  --serif:    'DM Serif Display', serif;
+  --sans:     'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 32px; }
+
+/* ── HEADER ─────────────────────────────────────── */
+header {
+  border-bottom: 1px solid var(--rule);
+  padding: 64px 0 48px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(42px, 7vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+h1 em { font-style: italic; color: var(--ink-2); }
+.tagline {
+  font-size: 18px;
+  color: var(--ink-2);
+  max-width: 580px;
+  line-height: 1.6;
+  margin-bottom: 36px;
+}
+.header-meta {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.meta-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.meta-val {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.meta-val a { color: var(--accent); text-decoration: none; }
+.meta-val a:hover { text-decoration: underline; }
+
+/* ── NAV ────────────────────────────────────────── */
+nav {
+  border-bottom: 1px solid var(--rule);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 0;
+}
+nav a {
+  display: block;
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ── SECTIONS ───────────────────────────────────── */
+section { padding: 72px 0; border-bottom: 1px solid var(--rule); }
+section:last-child { border-bottom: none; }
+.sec-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+.section-intro {
+  font-size: 17px;
+  color: var(--ink-2);
+  max-width: 620px;
+  margin-bottom: 48px;
+  line-height: 1.65;
+}
+
+/* ── STATS ──────────────────────────────────────── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 48px 0;
+}
+.stat {
+  background: var(--bg-card);
+  padding: 28px 24px;
+}
+.stat-n {
+  font-family: var(--serif);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.stat-lbl {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
+/* ── SKILLS GRID ────────────────────────────────── */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.skill-group h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.skill-group ul { list-style: none; }
+.skill-group li {
+  font-size: 14px;
+  color: var(--ink-2);
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skill-group li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── PROJECT CARDS ──────────────────────────────── */
+.projects { display: flex; flex-direction: column; gap: 32px; }
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 36px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.project-card:hover { border-color: var(--accent); }
+.project-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.project-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.project-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  margin-bottom: 20px;
+}
+.project-body {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+.project-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) { .project-grid { grid-template-columns: 1fr; } }
+.pg-block h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.pg-block p { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.project-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+.tag.accent { background: var(--accent-2); border-color: var(--accent); color: var(--accent); }
+
+/* ── IMPACT CALLOUT ─────────────────────────────── */
+.impact {
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  background: var(--bg-card);
+  margin: 24px 0 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.impact strong { color: var(--ink); font-weight: 500; }
+
+/* ── CONSULTING ─────────────────────────────────── */
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 40px 0;
+}
+.service {
+  background: var(--bg-card);
+  padding: 28px 24px;
+}
+.service-icon {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+.service h3 {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.service p { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+.rates {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 32px;
+  margin: 32px 0;
+}
+.rates h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+}
+.rate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+.rate-row:last-child { border-bottom: none; }
+.rate-name { color: var(--ink-2); }
+.rate-price {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* ── EXPERIENCE ─────────────────────────────────── */
+.exp-list { display: flex; flex-direction: column; gap: 32px; margin-top: 40px; }
+.exp-item { display: grid; grid-template-columns: 160px 1fr; gap: 24px; }
+@media (max-width: 600px) { .exp-item { grid-template-columns: 1fr; } }
+.exp-dates {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  padding-top: 3px;
+  letter-spacing: 0.04em;
+}
+.exp-role { font-weight: 500; font-size: 16px; margin-bottom: 2px; }
+.exp-co { font-size: 14px; color: var(--accent); margin-bottom: 10px; }
+.exp-desc { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+.exp-desc ul { list-style: none; padding: 0; }
+.exp-desc li { padding: 3px 0 3px 14px; position: relative; }
+.exp-desc li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+/* ── CTA ────────────────────────────────────────── */
+.cta-block {
+  background: var(--ink);
+  color: #f5f2eb;
+  padding: 64px;
+  text-align: center;
+  margin: 72px 0 0;
+}
+.cta-block h2 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 42px);
+  color: #f5f2eb;
+  margin-bottom: 16px;
+}
+.cta-block p {
+  font-size: 16px;
+  color: #a09c94;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+.cta-email {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: #f5f2eb;
+  text-decoration: none;
+  border-bottom: 1px solid #4a4640;
+  padding-bottom: 2px;
+  transition: border-color 0.15s;
+}
+.cta-email:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── FOOTER ─────────────────────────────────────── */
+footer {
+  padding: 32px 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════ -->
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Available for hire &amp; consulting</div>
+    <h1>Robert Young, CPIM<br><em>Operations &amp; Supply Chain</em></h1>
+    <p class="tagline">I build the tools that make operations actually work — automation, dashboards, and data systems that solve real problems without waiting on IT.</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-lbl">Location</span>
+        <span class="meta-val">Eastern US (Remote-capable)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Industry</span>
+        <span class="meta-val">Manufacturing &amp; Operations</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Email</span>
+        <span class="meta-val"><a href="mailto:r.youngaug@gmail.com">r.youngaug@gmail.com</a></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">LinkedIn</span>
+        <span class="meta-val"><a href="https://www.linkedin.com/in/robert-young-cpim" target="_blank">linkedin.com/in/robert-young-cpim</a></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ NAV ═════════════════════════════════════════ -->
+<nav>
+  <div class="wrap">
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#consulting">Consulting</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══ ABOUT ═══════════════════════════════════════ -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-label">About</div>
+    <h2>Operational clarity<br>through better data</h2>
+    <p class="section-intro">
+      Most operations teams are drowning in exports, manual reports, and tools nobody uses. I specialize in closing that gap — building automation systems, dashboards, and integrations that give the right people the right information without adding to their workload.
+    </p>
+    <p style="font-size:15px; color:var(--ink-2); max-width:640px; line-height:1.7; margin-bottom:32px;">
+      My background spans aerospace and defense components, marine and energy, and FDA-regulated nutraceutical manufacturing — including nearly 7 years in progressive planning, scheduling, and inventory management. A shop-floor background producing precision components for Lockheed Martin, Boeing, Northrop Grumman, and Airbus gives me a perspective most planners don't have. I hold APICS CPIM and ASCM Procurement certifications, and I'm self-taught in data automation, VBA, SQL, Power BI, and web development — not because I was handed those tools, but because the problems in front of me required them.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n">0.63%</div>
+        <div class="stat-lbl">Inventory variance achieved, down from ~10%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">$7.9M</div>
+        <div class="stat-lbl">Backlog recovered across two roles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">92%</div>
+        <div class="stat-lbl">OTD achieved at Riley Gear, up from ~37%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">0</div>
+        <div class="stat-lbl">IT tickets required to build any of the tools</div>
+      </div>
+    </div>
+
+    <div class="skills">
+      <div class="skill-group">
+        <h3>Domain</h3>
+        <ul>
+          <li>Production planning &amp; master scheduling</li>
+          <li>Constraint-based (finite) scheduling</li>
+          <li>MRP / DRP / level loading</li>
+          <li>Inventory control &amp; cycle counting</li>
+          <li>Purchasing &amp; supplier management</li>
+          <li>Lean / Kaizen / continuous improvement</li>
+          <li>TAKT time / EOQ / level loading</li>
+          <li>ETO / ATO / MTO order environments</li>
+          <li>cGMP / FDA-regulated environments</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <h3>ERP Systems</h3>
+        <ul>
+          <li>SAP (MRP, work orders, capacity)</li>
+          <li>Infor VISUAL</li>
+          <li>IFS</li>
+          <li>Fishbowl (MySQL)</li>
+          <li>Shopfloor Workbench</li>
+          <li>Power Query / ODBC integration</li>
+          <li>SQL</li>
+          <li>Power BI</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <h3>Tools &amp; Development</h3>
+        <ul>
+          <li>Excel / VBA (advanced macros, XLSM)</li>
+          <li>HTML / CSS / JavaScript</li>
+          <li>GitHub &amp; GitHub Pages</li>
+          <li>SharePoint / OneDrive / M365</li>
+          <li>REST API integration</li>
+          <li>Database architecture</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <h3>Certifications</h3>
+        <ul>
+          <li>APICS CPIM</li>
+          <li>ASCM Procurement Certification</li>
+          <li>Rutgers — Global Procurement &amp; Sourcing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WORK ════════════════════════════════════════ -->
+<section id="work">
+  <div class="wrap">
+    <div class="sec-label">Selected Work</div>
+    <h2>Problems solved,<br>tools shipped</h2>
+    <p class="section-intro">Every project below started as a real operational problem — not a portfolio exercise. All were built and deployed in active manufacturing environments.</p>
+
+    <div class="projects">
+
+      <!-- PROJECT 1 -->
+      <div class="project-card">
+        <div class="project-num">01 / 05</div>
+        <div class="project-title">Material Availability &amp; Runability System</div>
+        <div class="project-sub">Excel · VBA · Power Query · BOM Analysis</div>
+        <p class="project-body">
+          Production planners were manually exporting Fishbowl data, reformatting it, and copying it into a series of disconnected spreadsheets to answer a simple question: can we run this order? The process took hours and was error-prone. Built a fully automated workbook that accepts a raw Fishbowl on-hand export, explodes it against open sales order BOMs, and produces a complete runability picture — cook ingredients, packaging components, critical shortages, and a sales-order-level "ready to run" status — with a single macro click.
+        </p>
+        <div class="project-grid">
+          <div class="pg-block">
+            <h4>Problem</h4>
+            <p>Hours of manual export, reformatting, and cross-referencing to answer basic production readiness questions</p>
+          </div>
+          <div class="pg-block">
+            <h4>Solution</h4>
+            <p>Single-click automation: raw Fishbowl export in, complete runability analysis out — cook ingredients, packaging, shortages, and order status</p>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Excel / VBA</span>
+          <span class="tag">Power Query</span>
+          <span class="tag">BOM explosion</span>
+          <span class="tag">Fishbowl ERP</span>
+          <span class="tag">Inventory analysis</span>
+          <span class="tag accent">Production deployed</span>
+        </div>
+        <div class="impact"><strong>Impact:</strong> Eliminated multi-hour manual process. Planner runs one macro and has a complete availability picture in under 60 seconds.</div>
+      </div>
+
+      <!-- PROJECT 2 -->
+      <div class="project-card">
+        <div class="project-num">02 / 05</div>
+        <div class="project-title">Material Availability Power BI Dashboard</div>
+        <div class="project-sub">Power BI · OneDrive · SharePoint · Auto-refresh</div>
+        <p class="project-body">
+          The Excel workbook solved the planner's problem but didn't solve the floor's problem — production staff, QA, and management were still asking "can we run this?" because they had no access to the workbook. Extended the system into a Power BI dashboard connected live to the OneDrive-hosted workbook, embedded directly in the team's SharePoint page. The dashboard auto-refreshes on a schedule; anyone on the team opens a browser tab and sees current availability status with zero friction, zero files, zero training required.
+        </p>
+        <div class="project-grid">
+          <div class="pg-block">
+            <h4>Problem</h4>
+            <p>Operational staff couldn't access availability data without finding the file, opening it, and running the macro themselves</p>
+          </div>
+          <div class="pg-block">
+            <h4>Solution</h4>
+            <p>Live Power BI dashboard on SharePoint — auto-refreshes from OneDrive source, visible to entire team with no action required</p>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Power BI</span>
+          <span class="tag">Power Query (M)</span>
+          <span class="tag">OneDrive</span>
+          <span class="tag">SharePoint</span>
+          <span class="tag">Scheduled refresh</span>
+          <span class="tag accent">Production deployed</span>
+        </div>
+        <div class="impact"><strong>Impact:</strong> Self-service availability data for the entire operations team. Reduced planner interruptions for routine status questions.</div>
+      </div>
+
+      <!-- PROJECT 3 -->
+      <div class="project-card">
+        <div class="project-num">03 / 05</div>
+        <div class="project-title">Supplier Performance Tracker</div>
+        <div class="project-sub">HTML · JavaScript · GitHub Pages · SharePoint</div>
+        <p class="project-body">
+          No systematic supplier KPI tracking existed — vendor conversations were based on gut feel and anecdote rather than data. Built a browser-based supplier scorecard dashboard with KPI tracking across on-time delivery, quality acceptance rates, and documentation compliance. Deployed on GitHub Pages and embedded in SharePoint. Includes a kill switch for controlled rollout and a PIN-protected admin layer.
+        </p>
+        <div class="project-grid">
+          <div class="pg-block">
+            <h4>Problem</h4>
+            <p>Supplier accountability conversations lacked data foundation; no way to identify chronic underperformers systematically</p>
+          </div>
+          <div class="pg-block">
+            <h4>Solution</h4>
+            <p>Web-based scorecard with rolling KPI metrics, trend tracking, and SharePoint-embedded access for purchasing and QA teams</p>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tag">HTML/CSS/JS</span>
+          <span class="tag">GitHub Pages</span>
+          <span class="tag">SharePoint embed</span>
+          <span class="tag">Supplier management</span>
+          <span class="tag accent">Production deployed</span>
+        </div>
+        <div class="impact"><strong>Impact:</strong> Data-driven vendor review conversations. Chronic underperformers identifiable by KPI trend rather than memory and anecdote.</div>
+      </div>
+
+      <!-- PROJECT 4 -->
+      <div class="project-card">
+        <div class="project-num">04 / 05</div>
+        <div class="project-title">Kitchen Yield &amp; Scrap Rate Dashboard</div>
+        <div class="project-sub">HTML · JavaScript · Manufacturing Analytics</div>
+        <p class="project-body">
+          Actual gummy yield per batch was tracked inconsistently across production runs, making it difficult to identify variance by SKU, kitchen, or operator. Built an interactive analytics dashboard for tracking actual vs. expected yield across 200+ active SKUs, with searchable SKU selection, batch-level input, and variance visualization. Informed both production decisions and customer-facing distillate order calculations.
+        </p>
+        <div class="project-grid">
+          <div class="pg-block">
+            <h4>Problem</h4>
+            <p>No systematic yield tracking — scrap rates calculated manually and inconsistently, with no way to identify patterns by SKU or run</p>
+          </div>
+          <div class="pg-block">
+            <h4>Solution</h4>
+            <p>Interactive dashboard with full SKU library (200+ items), batch-level tracking, and actual vs. expected variance analysis</p>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tag">HTML/CSS/JS</span>
+          <span class="tag">Manufacturing analytics</span>
+          <span class="tag">Yield analysis</span>
+          <span class="tag">200+ SKUs</span>
+          <span class="tag accent">Production deployed</span>
+        </div>
+        <div class="impact"><strong>Impact:</strong> Identified yield variance patterns by SKU and run. Enabled more accurate customer-facing distillate order calculations.</div>
+      </div>
+
+      <!-- PROJECT 5 -->
+      <div class="project-card">
+        <div class="project-num">05 / 05</div>
+        <div class="project-title">Operational Platform Architecture</div>
+        <div class="project-sub">Systems Design · Supabase · Fishbowl/MySQL · CMMS · LIMS</div>
+        <p class="project-body">
+          Designed the architecture for a unified operational data platform to replace a fragmented collection of spreadsheets and manual processes — covering CMMS (maintenance), LIMS (lab/QA), HSE dashboards, training tracking, and supplier scorecards. Designed around a Supabase/Postgres core with nightly Fishbowl MySQL sync, Microsoft 365 authentication, and React/Blazor front end. Key design principle: Fishbowl is the system of record and is never modified — the platform is an analytical and quality layer alongside it.
+        </p>
+        <div class="project-grid">
+          <div class="pg-block">
+            <h4>Problem</h4>
+            <p>Five operational systems needed (CMMS, LIMS, HSE, training, supplier scorecards) with no systems engineer, no IT support, and no budget for enterprise software</p>
+          </div>
+          <div class="pg-block">
+            <h4>Solution</h4>
+            <p>Unified platform architecture on Supabase ($0–25/mo), with Fishbowl sync script, M365 auth, and modular front end — deployable incrementally without IT involvement</p>
+          </div>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Systems architecture</span>
+          <span class="tag">Supabase / Postgres</span>
+          <span class="tag">Fishbowl / MySQL</span>
+          <span class="tag">CMMS</span>
+          <span class="tag">LIMS</span>
+          <span class="tag">M365 / Azure AD</span>
+        </div>
+        <div class="impact"><strong>Impact:</strong> Roadmap for replacing $50k+/year enterprise system spend with a maintainable, self-hosted platform built on existing infrastructure.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONSULTING ══════════════════════════════════ -->
+<section id="consulting">
+  <div class="wrap">
+    <div class="sec-label">Consulting Services</div>
+    <h2>Hire me to solve<br>a specific problem</h2>
+    <p class="section-intro">
+      Available for project-based engagements. I work best with small and mid-sized manufacturers who have real operational problems and no dedicated systems team to solve them.
+    </p>
+
+    <div class="services">
+      <div class="service">
+        <div class="service-icon">📊</div>
+        <h3>Operations Dashboards</h3>
+        <p>Power BI or custom web dashboards connected to your ERP or data exports. Built for the people who actually need the information, not IT.</p>
+      </div>
+      <div class="service">
+        <div class="service-icon">⚙️</div>
+        <h3>Excel / VBA Automation</h3>
+        <p>If your team is doing the same manual export-and-reformat process every day, that process can be automated. Typically takes 1–3 days.</p>
+      </div>
+      <div class="service">
+        <div class="service-icon">🔗</div>
+        <h3>ERP Reporting &amp; Integration</h3>
+        <p>Fishbowl specialist. Direct MySQL queries, ODBC connections, scheduled data pulls, and custom reports that go beyond what Fishbowl ships with.</p>
+      </div>
+      <div class="service">
+        <div class="service-icon">🗄️</div>
+        <h3>Data Architecture</h3>
+        <p>Designing the right data layer for CMMS, LIMS, QA, or supplier management — without overbuilding or paying for enterprise software you don't need.</p>
+      </div>
+      <div class="service">
+        <div class="service-icon">📋</div>
+        <h3>Process Documentation</h3>
+        <p>SOPs, work instructions, and knowledge transfer documents for operations processes. Especially valuable during team transitions.</p>
+      </div>
+      <div class="service">
+        <div class="service-icon">🔍</div>
+        <h3>Inventory Audit &amp; Cleanup</h3>
+        <p>ERP data integrity assessment — BOMs, reorder points, lead times, UOM consistency. The kind of cleanup that makes every downstream report more reliable.</p>
+      </div>
+    </div>
+
+    <div class="rates">
+      <h3>Engagement types</h3>
+      <div class="rate-row">
+        <span class="rate-name">Hourly consulting</span>
+        <span class="rate-price">$125 / hr</span>
+      </div>
+      <div class="rate-row">
+        <span class="rate-name">Fixed-scope project (dashboard / automation tool)</span>
+        <span class="rate-price">$1,500 – $4,500</span>
+      </div>
+      <div class="rate-row">
+        <span class="rate-name">Fractional operations support (ongoing)</span>
+        <span class="rate-price">$2,500 – $5,000 / mo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══════════════════════════════════ -->
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-label">Experience</div>
+    <h2>Where I've worked</h2>
+
+    <div class="exp-list">
+
+      <div class="exp-item">
+        <div class="exp-dates">Dec 2025 — Present</div>
+        <div>
+          <div class="exp-role">ERP &amp; Inventory Analyst</div>
+          <div class="exp-co">Confidential — FDA-Regulated Nutraceutical Manufacturer, St. Augustine, FL</div>
+          <div class="exp-desc">
+            <ul>
+              <li>Reduced inventory variance from ~10% to 0.63% through targeted process improvements and SOP implementation</li>
+              <li>Engineered macro-enabled Excel workbook automating material availability checks and production planning, eliminating stockouts and improving order confirmation process</li>
+              <li>Built Power BI dashboard connected to live OneDrive data, embedded in SharePoint for zero-friction team-wide access</li>
+              <li>Own ERP data integrity within Fishbowl — item master data, parameter management, real-time inventory visibility</li>
+              <li>Operate within cGMP/FDA-regulated environment with lot traceability and compliance-driven inventory controls</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">Jan 2025 — Jul 2025</div>
+        <div>
+          <div class="exp-role">Master Scheduler</div>
+          <div class="exp-co">Riley Gear Corporation — St. Augustine, FL</div>
+          <div class="exp-desc">
+            <ul>
+              <li>Led recovery of $5.9M in aging backlog by establishing priority dispatches to raw material and outside process vendors</li>
+              <li>Drove on-time delivery from an estimated 35–40% baseline to 92% for Tier 1 customers through constraint-based scheduling, formalized date confirmation, and open order reporting cadences</li>
+              <li>Reduced customer date confirmation lead times from 14 days to 3, and RFQ response times from 30 days to 10</li>
+              <li>Co-developed planning and supplier relations presentation that secured BAE Systems approval and contributed to contract renewals on Rolls-Royce MTU and Woodward General Dynamics M1 Abrams programs</li>
+              <li>Implemented hybrid level-load / lean scheduling model; performed in-depth MRP cleanup in Infor VISUAL including EOQ recalculation, lead time corrections, and TAKT time establishment</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">Feb 2024 — Jan 2025</div>
+        <div>
+          <div class="exp-role">Materials &amp; Resource Planner</div>
+          <div class="exp-co">Teledyne Marine — Daytona Beach, FL</div>
+          <div class="exp-desc">
+            <ul>
+              <li>Identified planning being executed without capacity or constraint awareness; partnered with management to drive adoption of constraint-based (finite) scheduling</li>
+              <li>Spearheaded development and implementation of standard work and training documentation for Planning and Production Control teams</li>
+              <li>Generated and maintained production schedules across multiple areas using IFS and custom order tracking system (winMOPS); tracked shop floor performance to schedule via Shopfloor Workbench</li>
+              <li>Coordinated emergency orders; managed outsourcing to approved suppliers based on internal capacity and capability analysis</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">Aug 2020 — Feb 2024</div>
+        <div>
+          <div class="exp-role">Production Scheduler</div>
+          <div class="exp-co">Carlisle Interconnect Technologies — St. Augustine, FL</div>
+          <div class="exp-desc">
+            <ul>
+              <li>Led recovery of $2M+ in backlog through kaizen events targeting engineering, design, and production processes</li>
+              <li>Oversaw MRP elements for site-to-site transfers and NPD orders covering fiber optic, harness, sensor, and current return assemblies for Lockheed Martin, Boeing, Northrop Grumman, Airbus, and Ball Aerospace</li>
+              <li>Leveled capacity across multiple work centers; maintained and improved SAP MRP parameters including work order management, Order Action reports, and capacity plans</li>
+              <li>Participated in formal Master Scheduler development plan including kaizen events, supplier reviews, and corrective action assessments</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">2010 — 2020</div>
+        <div>
+          <div class="exp-role">Earlier Roles</div>
+          <div class="exp-co">Carlisle Interconnect Technologies &amp; Independent Business</div>
+          <div class="exp-desc">
+            <ul>
+              <li>CNC Inspection / Operator at Carlisle (2019–2020) — set up and operated Milltronics vertical mill producing precision aerospace components; certified in CNC setup, CRN production/inspection, and Microvue testing</li>
+              <li>Co-Owner / Operator, 8Up Catering Food Truck (2017–2021) — founded and operated independent catering business managing all operations, supplier relationships, inventory, cost controls, and financial reporting</li>
+              <li>Manufacturing Associate at Carlisle (2010–2013) — primary wrap and cure operations for power delivery and microwave wire production; certified in Power Feeder and Microwave wire processes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="exp-list" style="margin-top:40px; padding-top:40px; border-top:1px solid var(--rule);">
+      <div class="exp-item">
+        <div class="exp-dates">Education</div>
+        <div>
+          <div class="exp-role">B.A.S. in Supervision and Management</div>
+          <div class="exp-co">Daytona State College — Daytona Beach, FL</div>
+          <div class="exp-desc" style="margin-top:12px;">
+            <div class="exp-role" style="font-size:14px; margin-top:8px;">Coursework toward B.A. in Business Administration, Minor in International Studies</div>
+            <div class="exp-co">Flagler College — St. Augustine, FL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ═════════════════════════════════════════ -->
+<div class="cta-block" id="contact">
+  <h2>Let's work together</h2>
+  <p>Whether you're hiring or have a specific operational problem to solve, I'd like to hear from you.</p>
+  <a href="mailto:r.youngaug@gmail.com" class="cta-email">r.youngaug@gmail.com</a>
+</div>
+
+<!-- ══ FOOTER ══════════════════════════════════════ -->
+<div class="wrap">
+  <footer>
+    <span>Robert Young, CPIM · Operations &amp; Supply Chain</span>
+    <span>Updated May 2026</span>
+  </footer>
+</div>
+
+</body>
+</html>
